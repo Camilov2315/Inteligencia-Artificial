@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Seleccionar Algoritmo</title>
+</head>
+<body>
+    <h1>Seleccionar Algoritmo de Búsqueda</h1>
+    <form action="/run_algorithm" method="post">
+        <label><input type="radio" name="algorithm" value="dfs" required> DFS</label><br>
+        <label><input type="radio" name="algorithm" value="bfs"> BFS</label><br>
+        <label><input type="radio" name="algorithm" value="a_star"> A*</label><br>
+        <button type="submit">Ejecutar</button>
+    </form>
+</body>
+</html>
