@@ -51,5 +51,221 @@
 <h2> punto 4</h3>
 <p>comente que hace cada línea de código de acuerdo al vídeo: </p>
 <img src="imagenes/punto4.PNG" width="600" height="600">
+<br>
+<br>
+<h2>   RESULTADOS INTERESES 10/10/2024</h2>
+<P> Resultado encuesta</P>
+<img src="imagenes/resultado puntaje.PNG" width="600" height="600">
+<br>
+<img src="imagenes/resultado.PNG" width="600" height="600">
+<br>
+<img src="imagenes/resul.PNG" width="600" height="600">
+<br>
+<p> SEGUNDA ENCUESTA</p>
+<img src="imagenes/segundaprueba.PNG" width="600" height="600">
+<H2> SEGUNDO PARCIAL 2 CORTE - 24/10/2024</H2>
+    <code>
+        import itertools  # Importa la librería itertools, aunque no se utiliza en este código.
+
+class Sentence():
+    # Clase base para representar sentencias lógicas.  <br> <br>
+
+    def evaluate(self, model):
+        """Evalúa la sentencia lógica."""
+        raise Exception("nothing to evaluate")  # Lanzar una excepción si se llama a esta función. <br> <br>
+
+    def formula(self):
+        """Devuelve la fórmula en forma de cadena que representa la sentencia lógica.""" <br> <br>
+        return ""  # Retorna una cadena vacía por defecto.<br> <br>
+
+    def symbols(self):
+        """Devuelve un conjunto de todos los símbolos en la sentencia lógica."""<br> <br>
+        return set()  # Retorna un conjunto vacío por defecto.<br> <br>
+
+    @classmethod
+    def validate(cls, sentence):<br> <br>
+        """Valida que el objeto dado sea una instancia de Sentence."""<br> <br>
+        if not isinstance(sentence, Sentence):<br> <br>
+            raise TypeError("must be a logical sentence")  # Lanza TypeError si no lo es.<br> <br>
+
+    @classmethod
+    def parenthesize(cls, s):<br> <br>
+        """Añade paréntesis a una expresión si no están ya presentes."""<br> <br>
+        def balanced(s):<br> <br>
+            """Verifica si una cadena tiene paréntesis balanceados."""<br> <br>
+            count = 0  # Contador para paréntesis.<br> <br>
+            for c in s:  # Itera sobre cada carácter de la cadena.<br> <br>
+                if c == "(":
+                    count += 1  # Incrementa si encuentra un paréntesis de apertura.
+                elif c == ")":<br> <br>
+                    if count <= 0:<br> <br>
+                        return False  # Retorna False si encuentra un paréntesis de cierre sin par.<br> <br>
+                    count -= 1  # Decrementa el contador al encontrar un cierre.<br> <br>
+            return count == 0  # Retorna True si todos los paréntesis están balanceados.<br> <br>
+
+        # Condiciones para determinar si se necesitan paréntesis.<br> <br>
+        if not len(s) or s.isalpha() or (
+            s[0] == "(" and s[-1] == ")" and balanced(s[1:-1])
+        ):<br> <br>
+            return s  # Retorna la cadena original si ya está adecuadamente balanceada.
+        else:<br> <br>
+            return f"({s})"  # Añade paréntesis si no es necesario.<br> <br>
+
+class Symbol(Sentence):<br> <br>
+    # Clase que representa un símbolo en la lógica<br> <br>.
+
+    def __init__(self, name):<br> <br>
+        self.name = name  # Inicializa el símbolo con un nombre.<br> <br>
+
+    def __eq__(self, other):<br> <br>
+        return isinstance(other, Symbol) and self.name == other.name  # Comparación de igualdad.<br> <br>
+
+    def __hash__(self):<br> <br>
+        return hash(("symbol", self.name))  # Genera un hash para el símbolo.<br> <br>
+
+    def __repr__(self):<br> <br>
+        return self.name  # Representación del símbolo como su nombre.<br> <br>
+
+    def evaluate(self, model):<br> <br>
+        """Evalúa el símbolo en el modelo dado."""<br> <br>
+        try:<br> <br>
+            return bool(model[self.name])  # Retorna el valor booleano asociado al símbolo.
+        except KeyError:<br> <br>
+            raise EvaluationException(f"variable {self.name} not in model")  # Lanza excepción si el símbolo no está en el modelo.
+            
+    def formula(self):<br> <br>
+        return self.name  # Retorna el nombre del símbolo como su fórmula.<br> <br>
+
+    def symbols(self):<br> <br>
+        return {self.name}  # Retorna un conjunto con el símbolo.
+
+class Not(Sentence):<br> <br>
+    # Clase que representa la negación de una sentencia.<br> <br>
+
+    def __init__(self, operand):<br> <br>
+        Sentence.validate(operand)  # Valida el operando.<br> <br>
+        self.operand = operand  # Inicializa el operando.<br> <br>
+
+    def __eq__(self, other):<br> <br>
+        return isinstance(other, Not) and self.operand == other.operand  # Comparación de igualdad.<br> <br>
+
+    def __hash__(self):<br> <br>
+        return hash(("not", hash(self.operand)))  # Genera un hash para la negación.<br> <br>
+
+    def __repr__(self):<br> <br>
+        return f"Not({self.operand})"  # Representación de la negación.
+        <br> <br>
+    def evaluate(self, model):
+        return not self.operand.evaluate(model)  # Evalúa la negación del operando.<br> <br>
+
+    def formula(self):
+        return "¬" + Sentence.parenthesize(self.operand.formula())  # Retorna la fórmula de la negación.<br> <br>
+
+    def symbols(self):<br> <br>
+        return self.operand.symbols()  # Retorna los símbolos del operando.<br> <br>
+
+class And(Sentence):<br> <br>
+    # Clase que representa la conjunción de varias sentencias.<br> <br>
+    
+    def __init__(self, *conjuncts):<br> <br>
+        for conjunct in conjuncts:<br> <br>
+            Sentence.validate(conjunct)  # Valida cada conjunción.<br> <br>
+        self.conjuncts = list(conjuncts)  # Almacena las conjunciones.<br> <br>
+
+    def __eq__(self, other):<br> <br>
+        return isinstance(other, And) and self.conjuncts == other.conjuncts  # Comparación de igualdad.<br> <br>
+
+    def __hash__(self):<br> <br>
+        return hash(<br> <br>
+            ("and", tuple(hash(conjunct) for conjunct in self.conjuncts))
+        )  # Genera un hash para la conjunción.<br> <br>
+
+    def __repr__(self):<br> <br>
+        conjunctions = ", ".join(
+            [str(conjunct) for conjunct in self.conjuncts]<br> <br>
+        )  # Crea una representación de las conjunciones.
+        return f"And({conjunctions})"
+
+    def add(self, conjunct):<br> <br>
+        Sentence.validate(conjunct)  # Valida la nueva conjunción.<br> <br>
+        self.conjuncts.append(conjunct)  # Agrega la conjunción.<br> <br>
+
+    def evaluate(self, model):<br> <br>
+        return all(conjunct.evaluate(model) for conjunct in self.conjuncts)  # Evalúa todas las conjunciones.<br> <br>
+
+    def formula(self):
+        if len(self.conjuncts) == 1:<br> <br>
+            return self.conjuncts[0].formula()  # Retorna la fórmula si solo hay una conjunción.<br> <br>
+        return " ∧ ".join([Sentence.parenthesize(conjunct.formula())<br> <br>
+                           for conjunct in self.conjuncts])  # Retorna la fórmula de la conjunción.<br> <br>
+
+    def symbols(self):<br> <br>
+        return set.union(*[conjunct.symbols() for conjunct in self.conjuncts])  # Retorna los símbolos de las conjunciones.<br> <br>
+
+class Or(Sentence):
+    # Clase que representa la disyunción de varias sentencias.<br> <br>
+    <br> <br>
+    def __init__(self, *disjuncts):
+        for disjunct in disjuncts:<br> <br>
+            Sentence.validate(disjunct)  # Valida cada disyunción.<br> <br>
+        self.disjuncts = list(disjuncts)  # Almacena las disyunciones.<br> <br>
+
+    def __eq__(self, other):
+        return isinstance(other, Or) and self.disjuncts == other.disjuncts  # Comparación de igualdad.
+        <br> <br>
+    def __hash__(self):
+        return hash(
+            ("or", tuple(hash(disjunct) for disjunct in self.disjuncts))
+        )  # Genera un hash para la disyunción.<br> <br>
+
+    def __repr__(self):<br> <br>
+        disjuncts = ", ".join([str(disjunct) for disjunct in self.disjuncts])  # Crea una representación de las disyunciones.
+        return f"Or({disjuncts})"
+        <br> <br>
+    def evaluate(self, model):<br> <br>
+        return any(disjunct.evaluate(model) for disjunct in self.disjuncts)  # Evalúa si alguna disyunción es verdadera.<br> <br>
+
+    def formula(self):
+        if len(self.disjuncts) == 1:<br> <br>
+            return self.disjuncts[0].formula()  # Retorna la fórmula si solo hay una disyunción.<br> <br>
+        return " ∨  ".join([Sentence.parenthesize(disjunct.formula())<br> <br>
+                            for disjunct in self.disjuncts])  # Retorna la fórmula de la disyunción.<br> <br>
+
+    def symbols(self):<br> <br>
+        return set.union(*[disjunct.symbols() for disjunct in self.disjuncts])  # Retorna los símbolos de las disyunciones.<br> <br>
+
+class Implication(Sentence):<br> <br>
+    # Clase que representa una implicación.<br> <br>
+
+    def __init__(self, antecedent, consequent):<br> <br>
+        Sentence.validate(antecedent)  # Valida el antecedente.<br> <br>
+        Sentence.validate(consequent)  # Valida el consecuente.<br> <br>
+        self.antecedent = ante
+
+    </code>
+    <br>
+
+    <h2> punto 6</h2>
+    <pre><code>
+        from logic import *
+
+# Definición de los símbolos
+rain = Symbol("rain")
+bbc = Symbol("bbc")
+unimayor = Symbol("unimayor")
+
+# Conjunto de conocimiento
+knowledge = And(
+    Implication(Not(rain), bbc),            # Si no llueve, los estudiantes visitan BBC
+    Or(bbc, unimayor),                      # Estudiantes visitan BBC o Unimayor
+    Not(And(bbc, unimayor)),                # No visitan ambos lugares a la vez
+    unimayor                                # Estudiantes visitaron Unimayor
+)
+
+# Inferencias
+print("¿Qué podemos inferir acerca de BBC?:", model_check(knowledge, bbc))
+print("¿Qué podemos inferir acerca del clima?:", model_check(knowledge, rain))
+
+ </code> </pre>
     </body>
 </html>
